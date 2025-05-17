@@ -19,14 +19,39 @@ struct ContentView: View {
         VStack(spacing: 30) {
             
             Button("Request Permission") {
-                // first
+                UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { success, error in
+                    if success {
+                        print("All set!")
+                    } else if let error {
+                        print(error.localizedDescription)
+                    }
+                }
             }
             .buttonStyle(.borderedProminent)
             
             Stepper("Schedule notification in \(secondsFromNow) seconds", value: $secondsFromNow, in: 0...Int.max)
             
             Button("Schedule") {
-                // second
+                let content = UNMutableNotificationContent()
+                content.title = "Feed Piper"
+                content.subtitle = "She's always hungry"
+                content.sound = UNNotificationSound.default
+
+                // show this notification "x" seconds from now
+                let trigger = UNTimeIntervalNotificationTrigger(
+                    timeInterval: Double(secondsFromNow),
+                    repeats: false
+                )
+
+                // choose a random identifier
+                let request = UNNotificationRequest(
+                    identifier: UUID().uuidString,
+                    content: content,
+                    trigger: trigger
+                )
+
+                // add our notification request
+                UNUserNotificationCenter.current().add(request)
             }
             .buttonStyle(.borderedProminent)
             
